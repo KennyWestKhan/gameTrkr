@@ -17,3 +17,7 @@ npm i
 npm run dev
 ```
 Test Demo [here](https://morning-journey-40183.herokuapp.com/).
+# Task list
+- [x] Retrieve stats for Apex Legends
+- [ ] Retrieve stats for Call Of Duty
+- [ ] Retrieve stats for Overwatch
