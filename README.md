@@ -5,6 +5,6 @@ npm install
 # Client setup
 cd client/
 npm i
-## go back to root folder of project
+> go back to root folder of project
 # Project run
 npm run dev
