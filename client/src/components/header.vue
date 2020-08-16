@@ -1,6 +1,6 @@
 <template>
     <header>
-        <img :src="image">
+        <span class="logo"><img :src="image"></span>
     </header>
 </template>
 
@@ -8,10 +8,14 @@
     export default {
         name: 'Header',
         data() {
-            return{
-                image: require('@/assets/logo.png')
+            return{}
+        },
+        props: {
+            image: {
+                type: String,
+                default: require('@/assets/apexlogo.png')
             }
-        }
+        },
     }
 </script>
 

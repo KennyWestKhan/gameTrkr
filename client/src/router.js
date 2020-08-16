@@ -13,8 +13,14 @@ export default new Router({
         component: Search
     },
     {
-        path: '/profile/:platform/:gamertag',
+        path: '/profile/:platform/:gamertag/:game',
         name: 'profile',
         component: Profile
-    }]
+    },
+    {
+        path: '*',
+        component: () =>
+          import(/* webpackChunkName: "bundle.404page" */ './components/page-not-found.vue'),
+      },
+    ]
 })

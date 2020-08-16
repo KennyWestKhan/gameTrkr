@@ -1,108 +1,104 @@
 <template>
-    <section>
-        <div v-if="loading">
-            Loading...
+  <section>
+    <div class="section-container" id="loading-div" v-if="loading">
+      <span>Loading</span>
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <div v-if="error">
+      <pageNotFound :message="error" />
+    </div>
+    <div v-if="profileData" class="section-container">
+      <h1 class="gamertag">
+        <img :src="profileData.platformInfo.avatarUrl" alt class="platform-avatar" />
+        {{profileData.platformInfo.platformUserId}}
+      </h1>
+      <div class="grid">
+        <div>
+          <img :src="profileData.segments[1].metadata.imageUrl" alt />
         </div>
-        <div v-if="error">
-            <h1>{{error}}</h1>
-            <router-link to="/">Go back</router-link>
+        <div>
+          <ul>
+            <li>
+              <h4>Selected Legend</h4>
+              <p>{{profileData.metadata.activeLegendName}}</p>
+            </li>
+            <li v-if="profileData.segments[0].stats.season2Wins">
+              <h4>Season 2 Wins</h4>
+              <p>
+                {{profileData.segments[0].stats.season2Wins.displayValue}}
+                <span>({{profileData.segments[0].stats.season2Wins.percentile}})</span>
+              </p>
+            </li>
+            <li v-if="profileData.segments[0].stats.level">
+              <h4>Apex Level</h4>
+              <p>
+                {{profileData.segments[0].stats.level.displayValue}}
+                <span>({{profileData.segments[0].stats.level.percentile}}%)</span>
+              </p>
+            </li>
+            <li v-if="profileData.segments[0].stats.kills">
+              <h4>Lifetime Kills</h4>
+              <p>
+                {{profileData.segments[0].stats.kills.displayValue}}
+                <span>({{profileData.segments[0].stats.kills.percentile}}%)</span>
+              </p>
+            </li>
+            <li v-if="profileData.segments[0].stats.damage">
+              <h4>Damage Done</h4>
+              <p>
+                {{profileData.segments[0].stats.damage.displayValue}}
+                <span>({{profileData.segments[0].stats.damage.percentile}}%)</span>
+              </p>
+            </li>
+          </ul>
         </div>
-        <div v-if="profileData" class="container">
-            <h1 class="gamertag">
-                <img :src="profileData.platformInfo.avatarUrl" alt="" class="platform-avatar"/>
-                {{profileData.platformInfo.platformUserId}}
-            </h1>
-            <div class="grid">
-                <div>
-                    <img :src="profileData.segments[1].metadata.imageUrl" alt="">
-                </div>
-                <div>
-                    <ul>
-                        <li>
-                            <h4>Selected Legend</h4>
-                            <p>{{profileData.metadata.activeLegendName}}</p>
-                        </li>
-                        <li v-if="profileData.segments[0].stats.season2Wins">
-                            <h4>Season 2 Wins</h4>
-                            <p>
-                                {{profileData.segments[0].stats.season2Wins.displayValue}}
-                                <span>({{profileData.segments[0].stats.season2Wins.percentile}})</span>
-                            </p>
-                        </li>
-                        <li v-if="profileData.segments[0].stats.level">
-                            <h4>Apex Level</h4>
-                            <p>
-                                {{profileData.segments[0].stats.level.displayValue}}
-                                <span>({{profileData.segments[0].stats.level.percentile}}%)</span>
-                            </p>
-                        </li>
-                        <li v-if="profileData.segments[0].stats.kills">
-                            <h4>Lifetime Kills</h4>
-                            <p>
-                                {{profileData.segments[0].stats.kills.displayValue}}
-                                <span>({{profileData.segments[0].stats.kills.percentile}}%)</span>
-                            </p>
-                        </li>
-                        <li v-if="profileData.segments[0].stats.damage">
-                            <h4>Damage Done</h4>
-                            <p>
-                                {{profileData.segments[0].stats.damage.displayValue}}
-                                <span>({{profileData.segments[0].stats.damage.percentile}}%)</span>
-                            </p>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <router-link to="/">Go back</router-link>
-        </div>
-    </section>
+      </div>
+      <div class="grid">
+        <hbtn />
+        <socialBtn />
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
-import axios from 'axios'
-    export default {
-        name: 'Profile',
-        data() {
-            return {
-                loading: false,
-                error: null,
-                profileData: null
-            };
-        },
-        beforeCreate() {
-            document.body.className = 'body-bg-no-image';
-        },
-        async created() {
-            this.loading = true
-            try {
+import { dataService } from "../shared/data.service";
+import hbtn from "./home-btn";
+import pageNotFound from "./page-not-found";
+import socialBtn from "./share-buttons";
 
-                await axios.get(`/api/v1/profile/${this.$route.params.platform}/${this.$route.params.gamertag}`).then(response => {
-                    this.loading = false;
-                    this.profileData = response.data.data;
-                    const legendName = sessionStorage.getItem('trkr-legendName');
-                    const activeLegendName = this.profileData.metadata.activeLegendName
-                    if(legendName !== activeLegendName){
-                        sessionStorage.setItem('trkr-legendName', activeLegendName)
-                    }
-                });
-
-            }catch (err) {
-                this.loading = false;
-                this.error = err.response.data.message
-            }
-        }
+export default {
+  name: "Profile",
+  data() {
+    return {
+      loading: false,
+      error: null,
+      profileData: null,
+    };
+  },
+  components: { hbtn, pageNotFound, socialBtn },
+  beforeCreate() {
+    document.body.className = "body-bg-no-image";
+  },
+  async created() {
+    this.$toasted.clear();
+    this.loading = true;
+    const res = await dataService.getGamerStats(
+      this.$route.params.platform,
+      this.$route.params.gamertag,
+      this.$route.params.game
+    );
+    if (typeof res !== "object") {
+      this.error = res;
+    } else {
+      this.profileData = res;
     }
+    this.loading = false;
+  },
+};
 </script>
 
 <style scoped>
-.container {
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  max-width: 700px;
-  margin: 1rem auto;
-  padding: 2rem 1.5rem;
-  border-radius: 20px;
-}
 h1.gamertag {
   font-size: 2rem;
   background: rgba(0, 0, 0, 0.6);
@@ -113,15 +109,13 @@ h1.gamertag {
   display: flex;
   align-items: center;
 }
-a {
-  display: inline-block;
-  margin-top: 2rem;
-  border: #fff 2px solid;
-  padding: 0.5rem 0.8rem;
+#loading-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-a:hover {
-  border: #ccc 2px solid;
-  color: #ccc;
+#loading-div span {
+  padding: 7px;
 }
 .platform-avatar {
   width: 40px;

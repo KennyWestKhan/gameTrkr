@@ -1,24 +1,25 @@
 <template>
-  <div class="container"> 
-    <Header/> 
+  <div class="container">
+    <Header />
     <router-view />
   </div>
 </template>
 
 <script>
-import Header from './components/header';
+import Header from "./components/header";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Header,
-  }
-}
+  },
+};
 </script>
 
 <style>
 :root {
   --primary-color: #953036;
+  --secondary-color: #4b483f;
 }
 * {
   box-sizing: border-box;
@@ -31,6 +32,14 @@ body {
   color: #fff;
   line-height: 1.6;
 }
+.section-container {
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  max-width: 700px;
+  margin: 1rem auto;
+  padding: 2rem 1.5rem;
+  border-radius: 20px;
+}
 a {
   color: #fff;
   text-decoration: none;
@@ -41,10 +50,29 @@ ul {
 .body-bg-no-image {
   background: var(--primary-color);
 }
-.body-bg-image {
+/* .body-bg-image, */
+.apex-scheme {
   background: var(--primary-color) url("./assets/octane2.png") no-repeat top
     center;
 }
+.apex-scheme .btn{
+  background-color: var(--primary-color);
+}
+
+.cod-scheme {
+  background: var(--secondary-color) url("./assets/cod.jpg") no-repeat top
+    center;
+}
+
+.cod-scheme .btn{
+  background-color: var(--secondary-color);
+}
+
+.page-not-found-bg-image {
+  background: var(--primary-color) url("./assets/octane.png") no-repeat top
+    center;
+}
+
 .container {
   max-width: 960px;
   margin: 1rem auto;
